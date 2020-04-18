@@ -1,0 +1,44 @@
+body {
+	background-color: #f2f2f2;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0;
+}
+
+button {
+	background-color: #009933;
+	padding: 5px;
+	padding-left:7px;
+	padding-right: 7px;
+	border: solid 1px #00c742;
+	border-radius: 3px;
+	color: white;
+	outline: none;
+	margin: 0px;
+
+}
+
+#head_span h1 {
+
+	color: white;
+}
+
+#head_span {
+	background-color:  #009933;
+	width: 100%;
+	padding: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	box-shadow: 0px 5px 5px grey;
+}
+
+#main { margin-left: 5px;}
+
+#progress_bar {
+	height: 25px;
+	background-color: #00c742;
+}
+
+/* input[type=file] { 
+    width: 1px; 
+    visibility: hidden;
+} */
