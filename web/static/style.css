@@ -38,6 +38,15 @@ button {
 	background-color: #00c742;
 }
 
+a {
+	color: #009933;
+}
+
+a:visited { color: #009933; }
+
+a:hover { color: #00df4a;  text-decoration: underline; }
+a:active { color: #00df4a;  text-decoration: underline; }
+
 /* input[type=file] { 
     width: 1px; 
     visibility: hidden;

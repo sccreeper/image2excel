@@ -14,6 +14,8 @@ from werkzeug import secure_filename
 
 app = Flask(__name__)
 
+print('DO NOT USE THIS WEBSERVER IN A PRODUCTION ENVIROMENT. IT IS NOT DESIGNED FOR THAT!')
+
 #Modes:
 #Greyscale (GS)
 #RGB
@@ -164,7 +166,7 @@ class ConvertingThread(threading.Thread):
 
         worksheet.write('A1', 'Image produced by the Image to Excel converter. Zoom out to view the full image. Converter made by Oscar Peace')
         worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-
+        worksheet.write_url('B1', 'https://github.com/thecodedevourer/image2excel/', string='View the source code on GitHub')
 
         #Insert the original image into another sheet
         self.status += '\nAdding orginal image to sheet...'
