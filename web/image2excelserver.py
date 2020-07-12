@@ -10,12 +10,14 @@ import _thread, threading
 import json
 
 from flask import Flask, render_template, request, send_from_directory, send_file, abort, redirect
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-print('DO NOT USE THIS WEBSERVER IN A PRODUCTION ENVIROMENT. IT IS NOT DESIGNED FOR THAT!')
-
+print('|------------------------------------------------------------------------------------|')
+print('| DO NOT USE THIS WEBSERVER IN A PRODUCTION ENVIROMENT. IT IS NOT DESIGNED FOR THAT! |')
+print('|                       THERE IS ONLY SOME ERROR HANDLING                            |')
+print('|------------------------------------------------------------------------------------|')
 #Modes:
 #Greyscale (GS)
 #RGB
@@ -166,7 +168,7 @@ class ConvertingThread(threading.Thread):
 
         worksheet.write('A1', 'Image produced by the Image to Excel converter. Zoom out to view the full image. Converter made by Oscar Peace')
         worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-        worksheet.write_url('B1', 'https://github.com/thecodedevourer/image2excel/', string='View the source code on GitHub')
+        worksheet.write_url('B1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
         #Insert the original image into another sheet
         self.status += '\nAdding orginal image to sheet...'
@@ -231,12 +233,23 @@ def convert(name,pid):
 
         os.mkdir('temp/' + filename)
 
-        f = request.files['file']
-        #Save file with custom name
-        f.save('temp/' + filename + '/' + filename)
+        #If the file form is empty use the default test image.
+        #print(request.files['file'])
 
-        converting_threads[str(filename)] = ConvertingThread(secure_filename(f.filename) ,'temp/' + filename + '/' + secure_filename(filename), 'temp/' + filename + '/' + filename, request.form['filter'], request.form['colour'])
-        converting_threads[str(filename)].start()
+        if request.files['file'].filename == '':
+            print("File input empty! Using test image instead.")
+
+            time.sleep(0.5)
+
+            converting_threads[str(filename)] = ConvertingThread("test_image.JPG" ,'static/test_image.JPG', 'temp/' + filename + '/' + filename, request.form['filter'], request.form['colour'])
+            converting_threads[str(filename)].start()
+        else:
+            f = request.files['file']
+            #Save file with custom name
+            f.save('temp/' + filename + '/' + filename)
+
+            converting_threads[str(filename)] = ConvertingThread(secure_filename(f.filename) ,'temp/' + filename + '/' + secure_filename(filename), 'temp/' + filename + '/' + filename, request.form['filter'], request.form['colour'])
+            converting_threads[str(filename)].start()
 
         return str(filename)
     else:
@@ -268,6 +281,10 @@ def add_header(r):
     return r
 
 _thread.start_new_thread(check_folders, ())
+
+
+if os.path.exists("temp") != True:
+    os.mkdir("temp")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=80, threaded=True)

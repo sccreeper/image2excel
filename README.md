@@ -26,11 +26,11 @@ Modes:
 
  - GS *(greyscale)*
  - RGB *(red, green and blue)*
- - FILTER *(applies a filter to the image)*
+ - FILTER *(applies a colour filter to the image, options for sepia, sharpness etc. to be added in the future)*
 
 **Note:** The filter argument (a hexidecimal colour) is only required if you set the mode to `FILTER`
 
 **Webserver**
-
+Make sure you run this in the `web` directory, otherwise it will through out wierd errors.
     python image2excelserver.py
 	

@@ -48,18 +48,18 @@ function loop(pid) {
       xhttp.send();                    
  }, 250)
   
-}
+};
 
 function updateForm() {
   document.getElementById('file_b').innerHTML = document.getElementById('img_file')[0].value.split(/(\\|\/)/g).pop();
-}
+};
 
 function update_image(){
   var img = document.getElementById('image_file'); // Returns the first img element
   var file = document.querySelector('input[type=file]').files[0]; // Returns the first file element found
   img.src =  window.URL.createObjectURL(file);
 
-}
+};
 
 function filterDetect(params) {
   var e = document.getElementById('filters')
@@ -68,4 +68,24 @@ function filterDetect(params) {
   } else {
     document.getElementById('filter_colour').style.visibility = 'hidden';
   }
-}
+};
+
+function changeFilter() {
+  console.log("Applying filter...");
+
+  var hex_colour = document.getElementById("filter_colour").value;
+
+  const rgb = hexToRgb(hex_colour);
+  if (rgb.length !== 3) {
+    alert('Invalid format!');
+    return;
+  }
+
+  const color = new Color(rgb[0], rgb[1], rgb[2]);
+  const solver = new Solver(color);
+  const result = solver.solve();
+
+  document.getElementById("image_file").style.filter = result.filter.replace("filter: ", "").replace(";", "");
+  //console.log(result.filter)
+  console.log(`Filter: ${document.getElementById("image_file").style.filter} applied`);
+};

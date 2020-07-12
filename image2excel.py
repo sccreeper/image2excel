@@ -9,10 +9,12 @@ image_name = sys.argv[1]
 #See if help has been selected
 if image_name == 'help':
     print("""
-Image to Excel converter. Written by Oscar Peace AKA thecodedevourer.
+Image to Excel converter. Written by Oscar Peace AKA sccreeper.
 
 Command syntax:
     excel converter.py <filename> <file output> <mode>
+
+    <filename> can be 'test_image' if you just want to test the program.
 Modes:
     GS (Greyscale)
     RGB
@@ -20,6 +22,9 @@ Modes:
 """)
     pause = input('')
     exit()
+
+if image_name == 'test_image':
+    image_name = 'assets/test_image.JPG'
 
 #Set the variables fot cmd args
 output = sys.argv[2]
@@ -153,7 +158,7 @@ worksheet.set_column(0, width, 2.14)
 
 worksheet.write('A1', 'Image produced by the Image to Excel converter. Zoom out to view the full image. Converter made by Oscar Peace AKA thecodedevourer')
 worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-worksheet.write_url('B1', 'https://github.com/thecodedevourer/image2excel/', string='View the source code on GitHub')
+worksheet.write_url('B1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
 #Insert the original image into another sheet
 worksheet1 = workbook.add_worksheet("Original Image")

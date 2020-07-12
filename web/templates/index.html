@@ -20,11 +20,11 @@
     <option value="GS">Greyscale</option>
     <option value="FILTER">Custom colour</option>
   </select>
-  <input value='#ff0000' id='filter_colour' type='color' name='colour' style="visibility: hidden;"/>
+  <input value='#ffadff' id='filter_colour' type='color' name='colour' style="visibility: hidden;" onchange="changeFilter();"/>
   <button id='submit'>Convert</button>
 </form>
 
-<img id='image_file'/>
+<img id='image_file' src='/static/test_image.JPG'/>
 
 <div id='progress'>
   <div id='progress_bar' title='0%' style='width: 0px;'></div>
@@ -33,3 +33,4 @@
 </div>
 
 <script src='/static/process.js'></script>
+<script src='/static/filter.js'></script>
