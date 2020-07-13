@@ -3,11 +3,14 @@ A program which converts images into excel spreadsheets.
 
 ### Example conversion
 Original image:
+
 ![Original image](assets/test_image.JPG)
+---
 Result as viewed in Excel:
+
 ![Conversion](assets/test_conversion.png)
 
-
+---
 ### Prerequisites
 Libraries required for the program to run.
 
