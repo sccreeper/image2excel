@@ -1,5 +1,13 @@
 # image2excel
 A program which converts images into excel spreadsheets.
+
+### Example conversion
+Original image:
+![Original image](assets/test_image.JPG)
+Result as viewed in Excel:
+![Conversion](assets/test_conversion.png)
+
+
 ### Prerequisites
 Libraries required for the program to run.
 
@@ -32,5 +40,6 @@ Modes:
 
 **Webserver**
 Make sure you run this in the `web` directory, otherwise it will through out wierd errors.
+    
     python image2excelserver.py
 	
