@@ -1,0 +1,3 @@
+xlsxwriter #Excel lib
+pillow #Python image lib
+flask #Web server

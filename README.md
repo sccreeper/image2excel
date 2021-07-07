@@ -1,10 +1,12 @@
 # image2excel
-A program which converts images into excel spreadsheets.
+A program which converts images into Excel spreadsheets.
+
+---
 
 ### Example conversion
 Original image:
 
-![Original image](assets/test_image.JPG)
+![Original image](assets/test_image_readme.JPG)
 ---
 Result as viewed in Excel:
 
@@ -12,37 +14,38 @@ Result as viewed in Excel:
 
 ---
 ### Prerequisites
-Libraries required for the program to run.
 
-**Command line program:**
+Libraries required can be installed with:
 
-A simple program that can be executed from the command line.
+`pip install -r requirements.txt`
 
-`pip install xlsxwriter` 
-
- **Webserver**
-
- A web based interface for the program which runs on [localhost:80](http://localhost:80) by default.
-
-`pip install flask`
-
-`pip install xlsxwriter`
+---
 
 ### Command syntax
 
-**Command line program.**
-     `python image2excel.py <image to convert> <output path> <mode> <filter>`
+`python image2excel-cmd.py <image path> <output path> <scale> <mode> <filter colour (optional)>`
 
-Modes:
+**Example:** `python image2excel-cmd.py test_image test_ouput 0.1 RGB`
 
- - GS *(greyscale)*
- - RGB *(red, green and blue)*
- - FILTER *(applies a colour filter to the image, options for sepia, sharpness etc. to be added in the future)*
+**Example with filter:** `python image2excel-cmd.py test_image test_ouput 0.1 FILTER #35C391`
 
-**Note:** The filter argument (a hexidecimal colour) is only required if you set the mode to `FILTER`
+**Image path:** The location of the original iamge. `test_image` can be for one of the test images (scale of 0.1 is recommended).
 
-**Webserver**
-Make sure you run this in the `web` directory, otherwise it will through out wierd errors.
-    
-    python image2excelserver.py
+**Output path:** The output path of the Excel spreadsheet
+
+**Scale:** The scale of the image. For images over 1000px in size, a scale of less than 0.25 is recommended.
+
+**Mode**:
+
+ - `GREYSCALE` *(applies a greyscale effect to the image)* 
+ - `RGB` *(no filter applied)*
+ - `FILTER` *(applies a colour filter to the image)*
+
+---
+
+<!-- ### Webserver
+
+Make sure you run this in the `web` directory.
+
+`python image2excel-web.py <port>` -->
 	
