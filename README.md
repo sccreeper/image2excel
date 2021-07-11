@@ -43,9 +43,10 @@ Libraries required can be installed with:
 
 ---
 
-<!-- ### Webserver
+### Webserver
 
 Make sure you run this in the `web` directory.
 
-`python image2excel-web.py <port>` -->
-	
+`python image2excel-web.py <port>`
+
+**Note:** The port will default to `5000`

@@ -1,3 +1,5 @@
+__name__ = "image2excel"
+
 from lib import image2excel
 import sys
 import _thread as thread

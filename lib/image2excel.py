@@ -1,8 +1,8 @@
+__name__ = "image2excel.lib"
+
 from PIL import Image
 import xlsxwriter
 from datetime import datetime
-import sys
-import os
 from enum import Enum
 
 class Mode(Enum):
@@ -101,14 +101,6 @@ class Converter:
             worksheet.write(i+2, width, 0)
             worksheet.write(i+2, width+1, 255)
 
-            #print(red_value)
-            #print(green_value)
-            #print(blue_value)
-
-            #worksheet.conditional_format(red_value , {'type': '2_color_scale'})
-            #worksheet.conditional_format(green_value , {'type': '2_color_scale'})
-            #worksheet.conditional_format(blue_value , {'type': '2_color_scale'})
-
             #RGB Mode
             if self.mode == Mode.RGB:
                 worksheet.conditional_format(red_value, {'type': '2_color_scale',
@@ -156,7 +148,7 @@ class Converter:
         #Make the cells nice and square
         worksheet.set_column(0, width, 2.14)
 
-        worksheet.write('A1', 'Image produced by the Image to Excel converter. Zoom out to view the full image. Converter made by Oscar Peace AKA thecodedevourer')
+        worksheet.write('A1', 'Image produced by the image2excel converter. Zoom out to view the full image. Converter made by sccreeper')
         worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
         worksheet.write_url('B1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
