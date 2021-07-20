@@ -23,10 +23,11 @@ if args[1] == 'help':
 Image to Excel converter. Written by Oscar Peace AKA sccreeper.
 
 Command syntax:
-    python {args[0]} <filename> <file output> <scale> <mode>
+    python {args[0]} <media type> <filename> <file output> <scale> <mode>
 Example usage:
-    python {args[0]} test_image test_output 1 RGB
-    python {args[0]} test_image test_output 1 FILTER #FF00FF
+    python {args[0]} image test_image test_output 1 RGB
+    python {args[0]} video video.mp4 video_output 1 RGB
+    python {args[0]} image test_image test_output 1 FILTER #FF00FF
 
     <filename> can be 'test_image' if you just want to test the program.
 Modes:
@@ -36,31 +37,38 @@ Modes:
 
 
 Scale: controls the scale of the image. For large images (over 1000px) a smaller scale such as 0.1 or 0.05 is recommended.
+Media type: The type of media. video, image.
 """)
     input('Press enter to continue...')
     exit()
 
 test_images = ['assets/test_image.JPG', 'assets/test_image_2.JPG', 'assets/test_image_3.JPG']
 
-if args[1] == 'test_image':
+if args[2] == 'test_image':
     image_name = choice(test_images)
 else:
-    image_name = args[1]
+    image_name = args[2]
 
 #Set the variables fot cmd args
-output_file = args[2]
-scale = args[3]
+output_file = args[3]
+scale = args[4]
 
-if args[4] == "FILTER":
+if args[5] == "FILTER":
     filter = image2excel.Mode.FILTER
-    filter_colour = args[5]
+    filter_colour = args[6]
 else:
-    filter = image2excel.Mode[args[4]]
+    filter = image2excel.Mode[args[5]]
 
-try:
-    converter = image2excel.Converter(image_name, output_file, filter, scale, filter_colour)
-except NameError:
-    converter = image2excel.Converter(image_name, output_file, filter, scale)
+if sys.argv[1] == "image":
+    try:
+        converter = image2excel.ImageConverter(image_name, output_file, filter, scale, filter_colour)
+    except NameError:
+        converter = image2excel.ImageConverter(image_name, output_file, filter, scale)
+else:
+    try:
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour)
+    except NameError:
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale)
 
 conversion_status = ""
 

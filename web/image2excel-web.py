@@ -60,7 +60,7 @@ def convert(name,pid):
 
             time.sleep(0.5)
 
-            converting_threads[str(filename)] = i2e.Converter("../assets/test_image.JPG", 'temp/' + filename + '/' + filename, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
+            converting_threads[str(filename)] = i2e.ImageConverter("../assets/test_image.JPG", 'temp/' + filename + '/' + filename, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
             thread.start_new_thread(converting_threads[str(filename)].convert, ())
         else:
             f = request.files['file']
@@ -70,7 +70,7 @@ def convert(name,pid):
             #Save file with custom name
             f.save(temp_file_name)
 
-            converting_threads[str(filename)] = i2e.Converter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
+            converting_threads[str(filename)] = i2e.ImageConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
             thread.start_new_thread(converting_threads[str(filename)].convert, ())
 
         return str(filename)

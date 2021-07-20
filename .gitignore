@@ -1,3 +1,4 @@
 web/temp/
 __pycache__
 *.xlsx
+*.mp4
