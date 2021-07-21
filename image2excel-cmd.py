@@ -4,8 +4,7 @@ from lib import image2excel
 import sys
 import _thread as thread
 from random import choice
-
-args = sys.argv
+import argparse
 
 #Generate a loading bar
 def gen_bar(percent):
@@ -17,58 +16,51 @@ def gen_bar(percent):
 
     return bar
 
-#See if help has been selected
-if args[1] == 'help':
-    print(f"""
-Image to Excel converter. Written by Oscar Peace AKA sccreeper.
+parser = argparse.ArgumentParser(description='Takes a image/video and converts them into Excel spreadsheets. Made by sccreeper.')
 
-Command syntax:
-    python {args[0]} <media type> <filename> <file output> <scale> <mode>
-Example usage:
-    python {args[0]} image test_image test_output 1 RGB
-    python {args[0]} video video.mp4 video_output 1 RGB
-    python {args[0]} image test_image test_output 1 FILTER #FF00FF
+parser.add_argument("type", help="The type of media. image or video", type=str)
+parser.add_argument("file_path", help="Input file path", type=str)
+parser.add_argument("output_path", help="Output path", type=str)
+parser.add_argument("mode", help="Mode: GREYSCALE, RGB, FILTER", type=str)
+parser.add_argument("--scale", type=float, help="Scale of the media", default=0.5)
+parser.add_argument("--filter", type=str, help="Hex colour of the filter")
+parser.add_argument("--frameskip", type=int, help="The amount of frames to skip (gap between each spreadsheet), defaults to 25.", default=25)
+parser.add_argument("--forceframeskip", action="store_true", help="Force the frame skip")
+parser.add_argument("--videocut", type=float, help="Cuts the video down by a certain percentage. E.G 0.5 would be half.", default=0.5)
 
-    <filename> can be 'test_image' if you just want to test the program.
-Modes:
-    GREYSCALE
-    RGB
-    FILTER <HEX COLOUR>
+args = parser.parse_args()
 
-
-Scale: controls the scale of the image. For large images (over 1000px) a smaller scale such as 0.1 or 0.05 is recommended.
-Media type: The type of media. video, image.
-""")
-    input('Press enter to continue...')
-    exit()
 
 test_images = ['assets/test_image.JPG', 'assets/test_image_2.JPG', 'assets/test_image_3.JPG']
 
-if args[2] == 'test_image':
+#print(args.scale)
+#print(args.file_path)
+
+if args.file_path == 'test_image':
     image_name = choice(test_images)
 else:
-    image_name = args[2]
+    image_name = args.file_path
 
 #Set the variables fot cmd args
-output_file = args[3]
-scale = args[4]
+output_file = args.output_path
+scale = args.scale
 
-if args[5] == "FILTER":
+if args.mode == "FILTER":
     filter = image2excel.Mode.FILTER
-    filter_colour = args[6]
+    filter_colour = args.filter
 else:
-    filter = image2excel.Mode[args[5]]
+    filter = image2excel.Mode[args.mode]
 
-if sys.argv[1] == "image":
+if args.type == "image":
     try:
         converter = image2excel.ImageConverter(image_name, output_file, filter, scale, filter_colour)
     except NameError:
         converter = image2excel.ImageConverter(image_name, output_file, filter, scale)
 else:
     try:
-        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour)
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut)
     except NameError:
-        converter = image2excel.VideoConverter(image_name, output_file, filter, scale)
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut)
 
 conversion_status = ""
 
@@ -80,6 +72,6 @@ thread.start_new_thread(converter.convert, ())
 while not converter.finished:
     if not converter.status == conversion_status:
         conversion_status = converter.status
-        print(converter.status + "\n")
+        print("\n" + converter.status)
     if converter.status == "Converting...":
         print(f"Progess: {converter.progress}% {gen_bar(converter.progress)}", end="\r")

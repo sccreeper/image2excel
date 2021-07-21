@@ -77,10 +77,8 @@ class ImageConverter:
         #Open the image.
         im = Image.open(self.image_name)
 
-        width, height = im.size
-
         #Scale
-        im = im.resize((round(width * self.scale), round(height * self.scale)))
+        im = im.resize((round(im.size[0] * self.scale), round(im.size[1] * self.scale)))
 
         width, height = im.size
 
@@ -93,80 +91,57 @@ class ImageConverter:
 
         worksheet = workbook.add_worksheet("Image")
 
-        i=0
+        write_line=0
+        pixel_line = 0
 
         #Iterate through every pixel row by row.
-        while i < height:
+        while pixel_line < height:
             
             self.status = "Converting..."
             
             #Iterate through each pixel in the row and write values to spreadsheet.
             for pixel in range(width):
-                r, g, b = rgb_im.getpixel((pixel, i))
+                r, g, b = rgb_im.getpixel((pixel, pixel_line))
 
-                worksheet.write(i+2, pixel, r)
-                worksheet.write(i+3, pixel, g)
-                worksheet.write(i+4, pixel, b)
+                worksheet.write(write_line+2, pixel, r)
+                worksheet.write(write_line+3, pixel, g)
+                worksheet.write(write_line+4, pixel, b)
 
             #Get the locations on the spreadsheet needed for conditional formatting
-            red_value = 'A' + str(i) + ':' + to_excel_coords(width+5)+ str(1)
-            green_value = 'A' + str(i+1) + ':' + to_excel_coords(width+5) + str(2)
-            blue_value = 'A' + str(i+2) + ':' + to_excel_coords(width+5) + str(3)
+            red_value = 'A' + str(write_line) + ':' + to_excel_coords(width+5)+ str(1)
+            green_value = 'A' + str(write_line+1) + ':' + to_excel_coords(width+5) + str(2)
+            blue_value = 'A' + str(write_line+2) + ':' + to_excel_coords(width+5) + str(3)
 
             #Write 0 and 255 at the end of every row so conditional formatting works
-            worksheet.write(i, width, 0)
-            worksheet.write(i, width+1, 255)
+            worksheet.write(write_line, width, 0)
+            worksheet.write(write_line, width+1, 255)
 
-            worksheet.write(i+1, width, 0)
-            worksheet.write(i+1, width+1, 255)
+            worksheet.write(write_line+1, width, 0)
+            worksheet.write(write_line+1, width+1, 255)
 
-            worksheet.write(i+2, width, 0)
-            worksheet.write(i+2, width+1, 255)
+            worksheet.write(write_line+2, width, 0)
+            worksheet.write(write_line+2, width+1, 255)
 
             #Apply conditional formatting
-            
-            #RGB Mode
-            if self.mode == Mode.RGB:
-                worksheet.conditional_format(red_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': "#FF0000"})
-                worksheet.conditional_format(green_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': "#00FF00"})
+            #Lots of inline if statements probably bad, but looks smart            
 
-                worksheet.conditional_format(blue_value, {'type': '2_color_scale',
+            worksheet.conditional_format(red_value, {'type': '2_color_scale',
                                                     'min_color': "#000000",
-                                                    'max_color': "#0000FF"})
-            
-            #Greyscale mode                                       
-            if self.mode == Mode.GREYSCALE:
-                worksheet.conditional_format(red_value, {'type': '2_color_scale',
+                                                    'max_color': ("#FF0000" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
+            worksheet.conditional_format(green_value, {'type': '2_color_scale',
                                                     'min_color': "#000000",
-                                                    'max_color': "#FFFFFF"})
-                worksheet.conditional_format(green_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': "#FFFFFF"})
+                                                    'max_color': ("#00FF00" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
 
-                worksheet.conditional_format(blue_value, {'type': '2_color_scale',
+            worksheet.conditional_format(blue_value, {'type': '2_color_scale',
                                                     'min_color': "#000000",
-                                                    'max_color': "#FFFFFF"})
-            #Filter mode
-            if self.mode == Mode.FILTER:
-                worksheet.conditional_format(red_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': self.filter_colour})
-                worksheet.conditional_format(green_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': self.filter_colour})
+                                                    'max_color': ("#0000FF" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
 
-                worksheet.conditional_format(blue_value, {'type': '2_color_scale',
-                                                    'min_color': "#000000",
-                                                    'max_color': self.filter_colour})
+            pixel_line+=1
+            write_line+=3
 
-            i+=3 
             #print(i)
 
-            self.progress = round((i/height)*100)+1
+            self.progress = round((pixel_line/height)*100)+1
 
         self.progress = 100
 
@@ -174,16 +149,14 @@ class ImageConverter:
         #Make the cells nice and square
         worksheet.set_column(0, width, 2.14)
 
-        worksheet.write('A1', 'Image produced by the image2excel converter. Zoom out to view the full image. Converter made by sccreeper')
-        worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-        worksheet.write_url('B1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
-
         #Insert the original image into another sheet
         worksheet1 = workbook.add_worksheet("Original Image")
 
+        worksheet1.write('A1', f'Original dimensions: {width}px X {height}px ({width*height} pixels). Spreadsheet dimensions: {width}cells X {height}cells. ({width*height} cells)')
+
         worksheet1.write_url('A1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
-        worksheet1.write('A2', "Original image: '{}'".format(self.file_name))
-        worksheet1.insert_image('A3', self.file_name)
+        worksheet1.write('A3', "Original image: '{}'".format(self.file_name))
+        worksheet1.insert_image('A4', self.file_name)
 
         #Remove unused
         self.status  = "Removing unused rows and columns..."
@@ -202,7 +175,7 @@ class ImageConverter:
 
 class VideoConverter:
 
-        def __init__(self, file_name: str, output_path: str, mode=Mode.RGB, scale=1, filter_colour="#FFFFFF", frame_skip=25, force_frame_skip=False):
+        def __init__(self, file_name: str, output_path: str, mode=Mode.RGB, scale=1, filter_colour="#FFFFFF", frame_skip=25, force_frame_skip=False, videocut=1):
             """The main image class.
 
             Args:
@@ -224,6 +197,11 @@ class VideoConverter:
             if frame_skip < 25 and not force_frame_skip:
                 raise ValueError(f"frame_skip ({frame_skip}) cannot be less than 25!")
 
+            if videocut > 1:
+                raise ValueError(f"Cut video ({videocut}) cannot be greater than 1!")
+            else:
+                self.videocut = videocut
+
             self.frame_skip = frame_skip
 
             self.output_path = output_path
@@ -232,16 +210,29 @@ class VideoConverter:
             self.status = ""
             self.finished = False
 
-        
+        #https://stackoverflow.com/a/63763138
+        def rescale_frame(self, frame_input, percent=100):
+                width = int(frame_input.shape[1] * percent / 100)
+                height = int(frame_input.shape[0] * percent / 100)
+                dim = (width, height)
+                return cv2.resize(frame_input, dim, interpolation=cv2.INTER_AREA)
+
         def convert(self):
             """Begins conversion of the video
             """
 
             video = cv2.VideoCapture(self.file_name)
 
-            frame_count = video.get(cv2.CAP_PROP_FRAME_COUNT)
+            frame_count = math.floor(self.videocut * video.get(cv2.CAP_PROP_FRAME_COUNT))
+            print(frame_count)
+            print(frame_count * self.videocut)
+
             width = math.floor(video.get(cv2.CAP_PROP_FRAME_WIDTH))
             height = math.floor(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+            width = math.floor(width * self.scale)
+            height = math.floor(height * self.scale)
+
             framerate = video.get(cv2.CAP_PROP_FPS)
             duration = frame_count * framerate
 
@@ -252,8 +243,10 @@ class VideoConverter:
 
             info_worksheet.write('A1', 'Image produced by the image2excel converter. Zoom out to view the full image. Converter made by sccreeper')
             info_worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-            info_worksheet.write('A3', f'Video length: {duration} seconds', )
-            info_worksheet.write_url('A3', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
+            info_worksheet.write('A3', f'Video length: {duration} seconds')
+            info_worksheet.write('A4', f'Original framecount: {video.get(cv2.CAP_PROP_FRAME_COUNT)} frames')
+            info_worksheet.write('A5', f'Shortened framecount: {frame_count}')
+            info_worksheet.write_url('A5', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
             #Current frame's index in frame_worksheets
             frame_list_index = 0
@@ -275,83 +268,62 @@ class VideoConverter:
 
                 res, frame_data = video.read()
 
-                line = 0
+                frame_data = self.rescale_frame(frame_data, percent=self.scale*100)
+
+                pixel_line = 0
+                write_line = 0 
                 
                 self.status = f"Converting frame {frame_list_index}/{math.floor(frame_count/self.frame_skip)}..."
                 self.progress = round((frame_list_index/(frame_count/self.frame_skip))*100)
                 
-                while line < height:
+                while pixel_line < height:
                     
                     #Iterate through each pixel in every column and write their RGB values to seperate lines in a spreadsheet.
                     for pixel in range(width):
-                        r = frame_data[pixel, line, 2]
-                        g = frame_data[pixel, line, 1]
-                        b = frame_data[pixel, line, 0]
+                        r = frame_data[pixel, pixel_line, 2]
+                        g = frame_data[pixel, pixel_line, 1]
+                        b = frame_data[pixel, pixel_line, 0]
                         
-                        frame_worksheets[frame_list_index].write(line+1, pixel, r)
-                        frame_worksheets[frame_list_index].write(line+2, pixel, g)
-                        frame_worksheets[frame_list_index].write(line+3, pixel, b)                
+                        frame_worksheets[frame_list_index].write(write_line+1, pixel, r)
+                        frame_worksheets[frame_list_index].write(write_line+2, pixel, g)
+                        frame_worksheets[frame_list_index].write(write_line+3, pixel, b)                
 
                     #Get the locations on the spreadsheet needed for conditional formatting
-                    red_value = 'A' + str(line) + ':' + to_excel_coords(width+5)+ str(1)
-                    green_value = 'A' + str(line+1) + ':' + to_excel_coords(width+5) + str(2)
-                    blue_value = 'A' + str(line+2) + ':' + to_excel_coords(width+5) + str(3)
+                    red_value = 'A' + str(write_line) + ':' + to_excel_coords(width+5)+ str(1)
+                    green_value = 'A' + str(write_line+1) + ':' + to_excel_coords(width+5) + str(2)
+                    blue_value = 'A' + str(write_line+2) + ':' + to_excel_coords(width+5) + str(3)
 
                     #Write 0 and 255 at the end of every row so conditional formatting works
-                    frame_worksheets[frame_list_index].write(line, width, 0)
-                    frame_worksheets[frame_list_index].write(line, width+1, 255)
+                    frame_worksheets[frame_list_index].write(write_line, width, 0)
+                    frame_worksheets[frame_list_index].write(write_line, width+1, 255)
 
-                    frame_worksheets[frame_list_index].write(line+1, width, 0)
-                    frame_worksheets[frame_list_index].write(line+1, width+1, 255)
+                    frame_worksheets[frame_list_index].write(write_line+1, width, 0)
+                    frame_worksheets[frame_list_index].write(write_line+1, width+1, 255)
 
-                    frame_worksheets[frame_list_index].write(line+2, width, 0)
-                    frame_worksheets[frame_list_index].write(line+2, width+1, 255)
-
+                    frame_worksheets[frame_list_index].write(write_line+2, width, 0)
+                    frame_worksheets[frame_list_index].write(write_line+2, width+1, 255)
+                    
                     #Apply conditional formatting
-                    
-                    #RGB Mode
-                    if self.mode == Mode.RGB:
-                        frame_worksheets[frame_list_index].conditional_format(red_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': "#FF0000"})
-                        frame_worksheets[frame_list_index].conditional_format(green_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': "#00FF00"})
+                    #Lots of inline if statements probably bad, but looks smart            
 
-                        frame_worksheets[frame_list_index].conditional_format(blue_value, {'type': '2_color_scale',
+                    frame_worksheets[frame_list_index].conditional_format(red_value, {'type': '2_color_scale',
                                                             'min_color': "#000000",
-                                                            'max_color': "#0000FF"})
-                    
-                    #Greyscale mode                                       
-                    if self.mode == Mode.GREYSCALE:
-                        frame_worksheets[frame_list_index].conditional_format(red_value, {'type': '2_color_scale',
+                                                            'max_color': ("#FF0000" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
+                    frame_worksheets[frame_list_index].conditional_format(green_value, {'type': '2_color_scale',
                                                             'min_color': "#000000",
-                                                            'max_color': "#FFFFFF"})
-                        frame_worksheets[frame_list_index].conditional_format(green_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': "#FFFFFF"})
+                                                            'max_color': ("#00FF00" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
 
-                        frame_worksheets[frame_list_index].conditional_format(blue_value, {'type': '2_color_scale',
+                    frame_worksheets[frame_list_index].conditional_format(blue_value, {'type': '2_color_scale',
                                                             'min_color': "#000000",
-                                                            'max_color': "#FFFFFF"})
-                    #Filter mode
-                    if self.mode == Mode.FILTER:
-                        frame_worksheets[frame_list_index].conditional_format(red_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': self.filter_colour})
-                        frame_worksheets[frame_list_index].conditional_format(green_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': self.filter_colour})
-
-                        frame_worksheets[frame_list_index].conditional_format(blue_value, {'type': '2_color_scale',
-                                                            'min_color': "#000000",
-                                                            'max_color': self.filter_colour})
-                    #Remove unused rows and columns
-                    frame_worksheets[frame_list_index].set_default_row(hide_unused_rows=True)
-                    frame_worksheets[frame_list_index].set_column('{}:XFD'.format(to_excel_coords(width+3)), None, None, {'hidden': True})
+                                                            'max_color': ("#0000FF" if self.mode == Mode.RGB else ("#FFFFFF" if self.mode == Mode.GREYSCALE else self.filter_colour))})
                     
                     #Increment values and move to next line
-                    line += 3
+                    write_line += 3
+                    pixel_line += 1
+
+                #Remove unused rows and columns
+                frame_worksheets[frame_list_index].set_default_row(hide_unused_rows=True)
+                frame_worksheets[frame_list_index].set_column('{}:XFD'.format(to_excel_coords(width+3)), None, None, {'hidden': True})
                 
                 frame_video_index += self.frame_skip
                 frame_list_index += 1
