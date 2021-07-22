@@ -23,6 +23,7 @@ import cv2
 import math
 import xlsxwriter
 from datetime import datetime
+import time
 from enum import Enum
 
 
@@ -73,6 +74,8 @@ class ImageConverter:
     def convert(self):
         """Begins the conversion of the image.
         """
+        
+        start_time = time.time()
 
         #Open the image.
         im = Image.open(self.image_name)
@@ -150,13 +153,14 @@ class ImageConverter:
         worksheet.set_column(0, width, 2.14)
 
         #Insert the original image into another sheet
-        worksheet1 = workbook.add_worksheet("Original Image")
+        worksheet1 = workbook.add_worksheet("Info")
 
         worksheet1.write('A1', f'Original dimensions: {width}px X {height}px ({width*height} pixels). Spreadsheet dimensions: {width}cells X {height}cells. ({width*height} cells)')
 
         worksheet1.write_url('A1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
         worksheet1.write('A3', "Original image: '{}'".format(self.file_name))
-        worksheet1.insert_image('A4', self.file_name)
+        worksheet1.write('A4', f"Time taken: {time.time()-start_time} second{'s' if time.time() == 1 else ''}")
+        worksheet1.insert_image('A5', self.file_name)
 
         #Remove unused
         self.status  = "Removing unused rows and columns..."
@@ -221,6 +225,8 @@ class VideoConverter:
             """Begins conversion of the video
             """
 
+            start_time = time.time()
+
             video = cv2.VideoCapture(self.file_name)
 
             frame_count = math.floor(self.videocut * video.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -243,10 +249,11 @@ class VideoConverter:
 
             info_worksheet.write('A1', 'Image produced by the image2excel converter. Zoom out to view the full image. Converter made by sccreeper')
             info_worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-            info_worksheet.write('A3', f'Video length: {duration} seconds')
-            info_worksheet.write('A4', f'Original framecount: {video.get(cv2.CAP_PROP_FRAME_COUNT)} frames')
-            info_worksheet.write('A5', f'Shortened framecount: {frame_count}')
-            info_worksheet.write_url('A5', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
+            info_worksheet.write('A3', f"Time taken: {time.time()-start_time} second{'s' if time.time() == 1 else ''}")
+            info_worksheet.write('A4', f'Video length: {duration} seconds')
+            info_worksheet.write('A5', f'Original framecount: {video.get(cv2.CAP_PROP_FRAME_COUNT)} frames')
+            info_worksheet.write('A6', f'Shortened framecount: {frame_count}')
+            info_worksheet.write_url('A7', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
             #Current frame's index in frame_worksheets
             frame_list_index = 0
@@ -284,9 +291,9 @@ class VideoConverter:
                         g = frame_data[pixel, pixel_line, 1]
                         b = frame_data[pixel, pixel_line, 0]
                         
-                        frame_worksheets[frame_list_index].write(write_line+1, pixel, r)
-                        frame_worksheets[frame_list_index].write(write_line+2, pixel, g)
-                        frame_worksheets[frame_list_index].write(write_line+3, pixel, b)                
+                        frame_worksheets[frame_list_index].write(write_line+2, pixel, r)
+                        frame_worksheets[frame_list_index].write(write_line+3, pixel, g)
+                        frame_worksheets[frame_list_index].write(write_line+4, pixel, b)                
 
                     #Get the locations on the spreadsheet needed for conditional formatting
                     red_value = 'A' + str(write_line) + ':' + to_excel_coords(width+5)+ str(1)
