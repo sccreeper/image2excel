@@ -65,7 +65,7 @@ Use `image2excel-cmd.py -h` for help. Information about arguments is displayed b
 
 ### Webserver
 
-Make sure you run this in the `web` directory.
+Run in `web` directory.
 
 `python image2excel-web.py <port>`
 
@@ -75,7 +75,7 @@ Make sure you run this in the `web` directory.
 
 ### TODO
 
- - Implement video conversion for web server
- - Implement scale for video :white_check_mark:
- - Frame skip config :white_check_mark:
- - Cut down video length as option :white_check_mark:
+ - Implement video conversion for web server ✅
+ - Implement scale for video ✅
+ - Frame skip config ✅
+ - Cut down video length as option ✅
