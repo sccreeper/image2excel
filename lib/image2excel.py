@@ -159,7 +159,7 @@ class ImageConverter:
 
         worksheet1.write_url('A1', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
         worksheet1.write('A3', "Original image: '{}'".format(self.file_name))
-        worksheet1.write('A4', f"Time taken: {time.time()-start_time} second{'s' if time.time() == 1 else ''}")
+        worksheet1.write('A4', f"Time taken: {time.time()-start_time} second{'' if time.time() == 1 else 's'}")
         worksheet1.insert_image('A5', self.file_name)
 
         #Remove unused
@@ -249,10 +249,10 @@ class VideoConverter:
 
             info_worksheet.write('A1', 'Image produced by the image2excel converter. Zoom out to view the full image. Converter made by sccreeper')
             info_worksheet.write('A2', 'Original dimensions: {}px X {}px ({} pixels). Spreadsheet dimensions: {}cells X {}cells. ({} cells)'.format(width,height,width*height, width, height*3, width*(height*3)))
-            info_worksheet.write('A3', f"Time taken: {time.time()-start_time} second{'s' if time.time() == 1 else ''}")
+            info_worksheet.write('A3', f"Time taken: {time.time()-start_time} second{'' if time.time() == 1 else 's'}")
             info_worksheet.write('A4', f'Video length: {duration} seconds')
             info_worksheet.write('A5', f'Original framecount: {video.get(cv2.CAP_PROP_FRAME_COUNT)} frames')
-            info_worksheet.write('A6', f'Shortened framecount: {frame_count}')
+            info_worksheet.write('A6', f'Shortened framecount: {round(frame_count/self.frame_skip)}')
             info_worksheet.write_url('A7', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub')
 
             #Current frame's index in frame_worksheets
@@ -280,7 +280,7 @@ class VideoConverter:
                 pixel_line = 0
                 write_line = 0 
                 
-                self.status = f"Converting frame {frame_list_index}/{math.floor(frame_count/self.frame_skip)}..."
+                self.status = f"Converting frame {frame_list_index+1}/{math.floor(frame_count/self.frame_skip)+1}..."
                 self.progress = round((frame_list_index/(frame_count/self.frame_skip))*100)
                 
                 while pixel_line < height:
@@ -328,6 +328,9 @@ class VideoConverter:
                     write_line += 3
                     pixel_line += 1
 
+                #Make columns square
+                frame_worksheets[frame_list_index].set_column(0, width, 2.14)
+                
                 #Remove unused rows and columns
                 frame_worksheets[frame_list_index].set_default_row(hide_unused_rows=True)
                 frame_worksheets[frame_list_index].set_column('{}:XFD'.format(to_excel_coords(width+3)), None, None, {'hidden': True})
@@ -335,7 +338,7 @@ class VideoConverter:
                 frame_video_index += self.frame_skip
                 frame_list_index += 1
                 
-        
+            
             #When finished converting, save the workbook
             self.status = "Saving..."
             self.progress = 100

@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+
 <head>
     <title>image2excel UI</title>
     <!-- Other imports -->
@@ -13,14 +15,14 @@
     <p>View the source code for this project on <a target='_blank' href='https://github.com/sccreeper/image2excel/'>GitHub</a>.</p>
     <form id='form' enctype="multipart/form-data">
 
-      <button type="button" onclick="document.getElementById('file').click();"><i class="bi bi-upload"></i> <span id="fake-file-selector">Upload an image</span></button>
+      <button type="button" onclick="document.getElementById('file').click();" ><i class="bi bi-upload"></i> <span id="fake-file-selector">Upload an image</span></button>
 
-      <input id='file' name='file' type='file' accept="image/*" onchange="update_image()" style="display: none;">
+      <input id='file' name='file' type='file' accept="image/*, video/*" onchange="update_image()" style="display: none;">
       
       <label for="scale">
       Scale: <span id="range-scale">1</span>
       <div class="tooltip"><i class="bi bi-question-circle"></i>
-        <span class="tooltiptext">0.25 or less is recommeded for images over 1000px</span>
+        <span class="tooltiptext">0.25 or less is recommeded for media over 1000px</span>
       </div>
       </label>
 
@@ -33,16 +35,29 @@
         <option value="FILTER">Custom colour</option>
       </select>
       <input value='#ffadff' id='filter_colour' type='color' name='filter_colour' style="visibility: hidden; display: none;" onchange="changeFilter();"/>
+
+      <label for="videocut">
+        Video length:
+        <span id="range-videocut">100</span>
+        %
+      </label>
       
+      <input type="range" min="5" max="100" step="5" name="videocut" value="100"/>
+
+      <label for="frameskip">Frameskip:</label>      
+      <input type="number" min="25" step="25" name="frameskip" value="50">
+
       <button id='submit'>Convert</button>
     </form>
     
     <img id='image_file'/>
+    <video id="video" style="display: none;" width="640" height="360" controls>
+      <source id="video_source"/>
+    </video>
     <div id='image_filter'></div>
-    <!-- <h1>Add an image <i class="bi bi-upload" onclick="document.querySelector('input[type=file]').click();"></i></h1> -->
 
     
-    <div id='progress' class="progress-bar-background">
+    <div id='progress' class="progress-bar-background" style="visibility: hidden;">
       <div id='progress_bar' class='progress-bar-foreground' title='0%'></div>
     </div>
     <p style="white-space: pre-line" id='progress_status'></p>

@@ -1,4 +1,3 @@
 xlsxwriter #Excel lib
 pillow #Python image lib
-flask #Web server
 opencv-python #OpenCV python bindings

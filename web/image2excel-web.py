@@ -8,6 +8,7 @@ from lib import image2excel as i2e
 import os
 from random import randint, choice
 import time
+import magic
 
 import _thread as thread
 
@@ -70,8 +71,16 @@ def convert(name,pid):
             #Save file with custom name
             f.save(temp_file_name)
 
-            converting_threads[str(filename)] = i2e.ImageConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
-            thread.start_new_thread(converting_threads[str(filename)].convert, ())
+            if magic.from_file(temp_file_name, mime=True).startswith("image") :
+                #Image
+
+                converting_threads[str(filename)] = i2e.ImageConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])
+                thread.start_new_thread(converting_threads[str(filename)].convert, ())
+            else:
+                #Video
+
+                converting_threads[str(filename)] = i2e.VideoConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"], int(request.form["frameskip"]), videocut=int(request.form["videocut"])/100)
+                thread.start_new_thread(converting_threads[str(filename)].convert, ())
 
         return str(filename)
     else:
@@ -87,7 +96,7 @@ def convert(name,pid):
             #serve the file
             print('temp/' + name + '/' + name + '.xlsx')
 
-            return send_file('temp' + '/' + name + '/' + name + '.xlsx',   as_attachment=True, attachment_filename=f'Conversion {name}.xlsx')
+            return send_file('temp' + '/' + name + '/' + name + '.xlsx',   as_attachment=True, download_name=f'Conversion {name}.xlsx')
 
 #Stop browser caching
 @app.after_request

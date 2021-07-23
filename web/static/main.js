@@ -1,8 +1,12 @@
 const url = '/convert'
 const form = document.getElementById('submit')
+const video = document.getElementById('video')
+const video_source = document.getElementById('video_source')
+
+var currentMedia;
 
 
-//Add value to sliders
+//Add advent listeners to sliders for updating the labels.
 var inputs = document.getElementsByTagName("input")
 
 for (let index = 0; index < inputs.length; index++) {
@@ -48,18 +52,20 @@ function loop(pid) {
         if (this.readyState == 4 && this.status == 200) {
         //document.getElementById("demo").innerHTML = this.responseText;
 
-         var data = JSON.parse(this.responseText);
-         document.getElementById('progress_bar').style.width = (data.progress/100)*128 + 'px';
-         document.getElementById('progress_bar').setAttribute('title', data.progress + '% complete');
+          document.getElementById('progress_bar').style.visibility = "visible"
+        
+          var data = JSON.parse(this.responseText);
+          document.getElementById('progress_bar').style.width = (data.progress/100)*128 + 'px';
+          document.getElementById('progress_bar').setAttribute('title', data.progress + '% complete');
 
-         document.getElementById('progress_status').innerHTML = data.status;
+          document.getElementById('progress_status').innerHTML = data.status;
 
-         if (data.finished === 'True') {
-           finished = true;
-           window.open('/convert/' + pid, '_blank');
-         } else {
-           loop(pid);
-         }  
+          if (data.finished === 'True') {
+            finished = true;
+            window.open('/convert/' + pid, '_blank');
+          } else {
+            loop(pid);
+          }  
         };
       };
       xhttp.open("GET", "/convert/progress/" + pid, true);
@@ -86,12 +92,34 @@ function filterDetect() {
 function update_image(){
   var img = document.querySelector('img'); // Returns the first img element
   var file = document.querySelector('input[type=file]').files[0]; // Returns the first file element found
-  img.src =  window.URL.createObjectURL(file);
+
+  console.log(file.type)
+  
+  if(file.type.startsWith("video")) {
+    img.style.display = "none"
+    video.style.display = "block"
+    currentMedia = "video"
+
+    video.pause()
+
+    video_source.setAttribute("src", window.URL.createObjectURL(file))
+
+    video.load()
+    
+  } else if (file.type.startsWith("image")) {
+    img.style.display = "block"
+    video.style.display = "none"
+    currentMedia = "image"
+
+    img.src =  window.URL.createObjectURL(file);
+  }
 
   //Also update the fake file selector
   var fileSelector = document.getElementById("fake-file-selector");
 
   fileSelector.innerHTML = document.querySelector('input[type=file]').value.replace(/.*[\/\\]/, '');
 
-}
+  updateFilter();
+  filterDetect();
 
+}

@@ -1,19 +1,34 @@
 const imageElement = document.querySelector("img");
-const colourInput = document.getElementById("filter_colour")
-const filterElement = document.getElementById("image_filter")
+const videoElement = document.getElementById("video");
+const colourInput = document.getElementById("filter_colour");
+const filterElement = document.getElementById("image_filter");
 
-const boundingRect = imageElement.getBoundingClientRect();
-
-filterElement.style.left = boundingRect.x;
-filterElement.style.top = boundingRect.y;
+var size;
+var boundingRect;
 
 function changeFilter() {
 
+  // filterElement.style.display = "block"
   
-  var size = [imageElement.width, imageElement.height];
+  if(currentMedia === "image") {
+    size = [imageElement.width, imageElement.height];
 
-  filterElement.style.width = size[0]
-  filterElement.style.height = size[1]
+    boundingRect = imageElement.getBoundingClientRect();
+
+  } else {
+    size = [videoElement.width, videoElement.height];
+
+    boundingRect = videoElement.getBoundingClientRect();
+  }
+  
+  console.log(boundingRect)
+  console.log(size)
+
+  filterElement.style.left = boundingRect.x + "px";
+  filterElement.style.top = boundingRect.y + "px";
+  
+  filterElement.style.width = size[0] + "px"
+  filterElement.style.height = size[1] + "px"
   
   var colour = hexToRgb(colourInput.value);
 

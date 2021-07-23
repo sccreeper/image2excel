@@ -19,9 +19,13 @@ Video is the same except each frame is it's own spreadsheet.
 ---
 ### Prerequisites
 
-Libraries required can be installed with:
+Main libraries can be installed with:
 
 `pip install -r requirements.txt`
+
+Web UI libraries can be installed with:
+
+`pip install -r web_requirements.txt`
 
 ---
 
