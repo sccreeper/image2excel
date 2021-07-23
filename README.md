@@ -1,7 +1,7 @@
 # image2excel
 A program which converts images and video into Excel spreadsheets.
 
-Video only works for cmd utility atm. Videos also take a long time to save.
+Videos can take a long time to save.
 
 ---
 
