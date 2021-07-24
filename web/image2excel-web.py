@@ -71,7 +71,7 @@ def convert(name,pid):
             #Save file with custom name
             f.save(temp_file_name)
 
-            if magic.from_file(temp_file_name, mime=True).startswith("image") :
+            if magic.from_file(temp_file_name, mime=True).startswith("image") and not magic.from_file(temp_file_name, mime=True) == "image/gif":
                 #Image
 
                 converting_threads[str(filename)] = i2e.ImageConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"])

@@ -35,7 +35,7 @@ Web UI libraries can be installed with:
 
 Use `image2excel-cmd.py -h` for help. Information about arguments is displayed below.
 
-**Media type:** `video` or `image`
+**Media type:** `video` or `image`. Video is used for animated gifs.
 
 **File path:** The location of the original iamge. `test_image` can be for one of the test images, no test videos (scale of 0.1 is recommended).
 
@@ -76,7 +76,7 @@ Run in `web` directory.
 ### TODO
 
  - Add RGB 2D array support
- - Add support for gifs as video
+ - Add support for gifs as video ✅
  - Implement video conversion for web server ✅
  - Implement scale for video ✅
  - Frame skip config ✅
