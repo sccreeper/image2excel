@@ -75,6 +75,8 @@ Run in `web` directory.
 
 ### TODO
 
+ - Add RGB 2D array support
+ - Add support for gifs as video
  - Implement video conversion for web server ✅
  - Implement scale for video ✅
  - Frame skip config ✅
