@@ -1,5 +1,5 @@
 """
-image2excel is a program that converts images and video to Excel spreadsheets.
+image2excel is software that converts images and video to Excel spreadsheets.
     Copyright (C) 2021  Oscar Peace AKA sccreeper
 
     This program is free software: you can redistribute it and/or modify
@@ -18,9 +18,13 @@ image2excel is a program that converts images and video to Excel spreadsheets.
 
 __name__ = "image2excel.lib"
 
+from typing import Union
 from PIL import Image
 import cv2
 import math
+import numpy as np
+import tempfile
+import shutil
 import xlsxwriter
 from datetime import datetime
 import time
@@ -42,20 +46,28 @@ class Mode(Enum):
     FILTER = 3
 
 #The image converter, will convert an image into different coloured cells on a spreadsheet.
+#Also works with 2D arrays of RGB data.
+#Array format:
+#[ [ [r, g, b] ] ]
+
 class ImageConverter:
-    def __init__(self, file_name: str, output_path: str, mode=Mode.RGB, scale=1, filter_colour="#FFFFFF"):
+    def __init__(self, file_name: Union[list, str], output_path: str, mode: int=Mode.RGB, scale: float=1.0, filter_colour: str="#FFFFFF"):
         """The main image class.
 
         Args:
-            file_name (str): The path of the image you want to convert
+            file_name (str, list): The path of the image you want to convert or image array data. Array example: [ [ [r, g, b] ] ]
             output_path (str): The output path of the Excel spreadsheet.
             mode ([type], optional): The filter mode. Use the `Mode` enum. Defaults to Mode.RGB.
             scale (int, optional): Scale of the image. For images over 1000px, a scale of 0.25 or lower is recommended. Defaults to 1.
             filter_colour (str, optional): The filter colour. Only required if using `Mode.FILTER`. Defaults to "#FFFFFF".
         """
 
-        self.image_name = file_name
-        self.file_name = file_name
+        if isinstance(file_name, list):
+            self.image_array = file_name
+            self.is_array = True
+        else:
+            self.is_array = False
+        
         self.mode = mode
         self.scale = float(scale)
         self.filter_colour = filter_colour
@@ -64,6 +76,8 @@ class ImageConverter:
         self.progress = 0
         self.status = ""
         self.finished = False
+
+        self.temp_dir = ""
 
     def __get_time(self):
         return str(datetime.now().hour) + str(datetime.now().minute)
@@ -77,8 +91,20 @@ class ImageConverter:
         
         start_time = time.time()
 
-        #Open the image.
-        im = Image.open(self.image_name)
+        #Open the image and save if array
+        if self.is_array:
+            data = np.array(self.image_array).astype('uint8')
+
+            im = Image.fromarray(data, "RGB")
+
+            self.temp_dir = tempfile.mkdtemp()
+
+            self.file_name = f"{self.temp_dir}/array {data.size}.png"
+            self.image_name = f"{self.temp_dir}/array {data.size}.png"
+
+            im.save(f"{self.temp_dir}/array {data.size}.png")
+        else:
+            im = Image.open(self.image_name)
 
         #Scale
         im = im.resize((round(im.size[0] * self.scale), round(im.size[1] * self.scale)))
@@ -172,6 +198,9 @@ class ImageConverter:
         workbook.close()
         self.status = "Image saved!"
 
+        if self.is_array:
+            shutil.rmtree(self.temp_dir)
+
         self.finished = True
 
 
@@ -179,7 +208,7 @@ class ImageConverter:
 
 class VideoConverter:
 
-        def __init__(self, file_name: str, output_path: str, mode=Mode.RGB, scale=1, filter_colour="#FFFFFF", frame_skip=25, force_frame_skip=False, videocut=1):
+        def __init__(self, file_name: str, output_path: str, mode: int=Mode.RGB, scale: float=1, filter_colour: str="#FFFFFF", frame_skip: int=25, force_frame_skip: bool=False, videocut: float=1.0):
             """The main image class.
 
             Args:
@@ -202,7 +231,7 @@ class VideoConverter:
                 raise ValueError(f"frame_skip ({frame_skip}) cannot be less than 25!")
 
             if videocut > 1:
-                raise ValueError(f"Cut video ({videocut}) cannot be greater than 1!")
+                raise ValueError(f"videocut ({videocut}) cannot be greater than 1!")
             else:
                 self.videocut = videocut
 

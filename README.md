@@ -57,9 +57,9 @@ Use `image2excel-cmd.py -h` for help. Information about arguments is displayed b
 
 **Frameskip:** How many frames to skip between each spreadsheet. 50 is recommended.
 
-**Force frame skip:** Force the frame skip to be lower than 25
+**Force frame skip:** Force the frame skip to be lower than 25. Ideal for gifs.
 
-**Videocut:** How much to shorten the video by
+**Videocut:** How much to shorten the video by (float, percentage 0.5 = 50%)
 
 ---
 
