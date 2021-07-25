@@ -1,6 +1,8 @@
 # image2excel
 A program which converts images and video into Excel spreadsheets.
 
+Usage examples can be found in `examples`
+
 Videos can take a long time to save.
 
 ---
@@ -65,7 +67,7 @@ Use `image2excel-cmd.py -h` for help. Information about arguments is displayed b
 
 ### Webserver
 
-Run in `web` directory.
+Run in `eaxmples/web` directory.
 
 `python image2excel-web.py <port>`
 
