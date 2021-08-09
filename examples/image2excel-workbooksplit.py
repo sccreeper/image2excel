@@ -8,7 +8,7 @@ file_path = input("Full file path: ")
 output_path = input("Full output path: ")
 use_zip = True if input("Use zip (y/n): ").lower() == "y" else False
 
-converter = i2e.VideoConverter(file_path, output_path, scale=0.1, workbooksplit=1, use_zip=use_zip)
+converter = i2e.VideoConverter(file_path, output_path, scale=0.1, frame_skip=100) #workbooksplit=1, use_zip=use_zip)
 
 #do on different thread
 thread.start_new_thread(converter.convert, ())

@@ -442,8 +442,8 @@ class VideoConverter:
 
                     if self.__splitworkbooks:
                         frame_iterator += 1
-                    if frame_iterator >= self.workbooksplit:
-                        break                    
+                        if frame_iterator >= self.workbooksplit:
+                            break                    
 
             if not self.__splitworkbooks:    
                 #Save worksheet
