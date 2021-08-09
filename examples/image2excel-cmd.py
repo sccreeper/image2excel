@@ -1,3 +1,4 @@
+#Demonstrates basic functionality of the lib
 __name__ = "image2excel"
 
 from lib import image2excel
@@ -73,5 +74,5 @@ while not converter.finished:
     if not converter.status == conversion_status:
         conversion_status = converter.status
         print("\n" + converter.status)
-    if converter.status == "Converting...":
+    if converter.status.startswith("Converting"):
         print(f"Progess: {converter.progress}% {gen_bar(converter.progress)}", end="\r")

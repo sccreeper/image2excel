@@ -76,7 +76,8 @@ Run in `eaxmples/web` directory.
 ---
 
 ### TODO
- - Add ability to split video up into seperate Excel files
+ - 'Bake' colours (dont' use conditional formatting)
+ - Add ability to split video up into seperate Excel files ✅
  - Add example that downloads YouTube videos
  - Add RGB 2D array support ✅
  - Add support for gifs as video ✅

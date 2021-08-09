@@ -1,1 +1,5 @@
 web/temp/*
+test_outputs
+*.zip
+*.mp4
+*.xlsx

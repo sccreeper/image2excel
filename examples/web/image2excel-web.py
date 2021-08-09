@@ -1,4 +1,4 @@
-#__package__ = "image2excel.web"
+#Basically a Web UI for this made using Flask
 
 import sys
 
