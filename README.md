@@ -63,6 +63,8 @@ Use `image2excel-cmd.py -h` for help. Information about arguments is displayed b
 
 **Videocut:** How much to shorten the video by (float, percentage 0.5 = 50%)
 
+**Workbooksplit:** Split the video into seperate files, every x frames. <= 10 recommended.
+
 ---
 
 ### Webserver

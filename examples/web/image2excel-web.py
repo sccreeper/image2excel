@@ -2,7 +2,7 @@
 
 import sys
 
-sys.path.append("..")
+sys.path.append("../..")
 
 from lib import image2excel as i2e
 import os

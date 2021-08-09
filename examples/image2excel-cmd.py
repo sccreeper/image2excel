@@ -1,8 +1,10 @@
 #Demonstrates basic functionality of the lib
 __name__ = "image2excel"
 
-from lib import image2excel
 import sys
+sys.path.append("..")
+
+from lib import image2excel
 import _thread as thread
 from random import choice
 import argparse
@@ -28,6 +30,7 @@ parser.add_argument("--filter", type=str, help="Hex colour of the filter")
 parser.add_argument("--frameskip", type=int, help="The amount of frames to skip (gap between each spreadsheet), defaults to 25.", default=25)
 parser.add_argument("--forceframeskip", action="store_true", help="Force the frame skip")
 parser.add_argument("--videocut", type=float, help="Cuts the video down by a certain percentage. E.G 0.5 would be half.", default=0.5)
+parser.add_argument("--workbooksplit", type=int, help="Split the video into seperate files, every x frames. <= 10 recommended.", default=None)
 
 args = parser.parse_args()
 
@@ -59,9 +62,9 @@ if args.type == "image" and not ".gif" in args.file_path:
         converter = image2excel.ImageConverter(image_name, output_file, filter, scale)
 else:
     try:
-        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut)
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut, workbooksplit=args.workbooksplit)
     except NameError:
-        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut)
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut, workbooksplit=args.workbooksplit)
 
 conversion_status = ""
 
