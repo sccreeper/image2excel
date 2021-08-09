@@ -1,7 +1,8 @@
 const url = '/convert'
-const form = document.getElementById('submit')
+const submit_button = document.getElementById('submit')
 const video = document.getElementById('video')
 const video_source = document.getElementById('video_source')
+const workbooksplit_check = document.getElementById('enable-workbooksplit')
 
 var currentMedia;
 
@@ -22,8 +23,19 @@ for (let index = 0; index < inputs.length; index++) {
   }
 }
 
+//Add event listeners for other stuff
+workbooksplit_check.addEventListener("change", function(){
 
-form.addEventListener('click', e => {
+  if(workbooksplit_check.checked) {
+    document.getElementById('workbooksplit').style.display = "inline-block"
+  } else {
+    document.getElementById('workbooksplit').style.display = "none"
+  }
+
+})
+
+
+submit_button.addEventListener('click', e => {
   e.preventDefault()
 
   var xhttp = new XMLHttpRequest();
@@ -119,7 +131,7 @@ function update_image(){
 
   fileSelector.innerHTML = document.querySelector('input[type=file]').value.replace(/.*[\/\\]/, '');
 
-  updateFilter();
+  changeFilter();
   filterDetect();
 
 }

@@ -24,6 +24,7 @@ else:
     port = 5000
 
 converting_threads = {}
+converting_threads_split = {}
 test_image_names = ["../assets/test_image_2.JPG", "../assets/test_image_3.JPG", "../assets/test_image.JPG"]
 
 @app.route('/')
@@ -34,7 +35,7 @@ def index():
 @app.route('/convert/<name>', defaults={'pid':None})
 @app.route('/convert/progress/<pid>', defaults={'name':"progress"})
 def convert(name,pid):
-    global converting_threads
+    global converting_threads, converting_threads_split
 
     if request.method == 'POST':
 
@@ -79,7 +80,11 @@ def convert(name,pid):
             else:
                 #Video
 
-                converting_threads[str(filename)] = i2e.VideoConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"], int(request.form["frameskip"]), videocut=int(request.form["videocut"])/100)
+                converting_threads[str(filename)] = i2e.VideoConverter(temp_file_name, temp_file_name, i2e.Mode[request.form["filter"]], request.form["scale"], request.form["filter_colour"], int(request.form["frameskip"]), videocut=int(request.form["videocut"])/100,
+                workbooksplit=None if not request.form.get("enable-workbooksplit") else int(request.form["workbooksplit"]))
+
+                converting_threads_split[str(filename)] = converting_threads[str(filename)].is_split()                
+
                 thread.start_new_thread(converting_threads[str(filename)].convert, ())
 
         return str(filename)
@@ -91,12 +96,15 @@ def convert(name,pid):
             progress_report['finished'] = str(converting_threads[pid].finished)
             progress_report['status'] = converting_threads[pid].status
 
+            converting_threads_split[pid] = converting_threads[pid].is_split()
+            #print(converting_threads_split)
+
             return json.dumps(progress_report)
         else:
             #serve the file
-            print('temp/' + name + '/' + name + '.xlsx')
+            #print('temp/' + name + '/' + name + '.xlsx') 
 
-            return send_file('temp' + '/' + name + '/' + name + '.xlsx',   as_attachment=True, download_name=f'Conversion {name}.xlsx')
+            return send_file('temp' + '/' + name + '/' + name + '.xlsx' if not converting_threads_split[name] else 'temp' + '/' + name + '/' + name + '.zip',   as_attachment=True, download_name=f'Conversion {name}.xlsx' if not converting_threads_split[name] else f'Conversion {name}.zip')
 
 #Stop browser caching
 @app.after_request

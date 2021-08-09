@@ -47,6 +47,16 @@
       <label for="frameskip">Frameskip:</label>      
       <input type="number" min="25" step="25" name="frameskip" value="50">
 
+      <input type="checkbox" id="enable-workbooksplit" name="enable-workbooksplit">
+      <label for="enable-workbooksplit">Workbooksplit         
+          <div class="tooltip">
+            <i class="bi bi-question-circle"></i>
+          <span class="tooltiptext">Split the video into seperate files every X frames.</span>
+        </div> 
+      </label>
+
+      <input id="workbooksplit" name="workbooksplit" type="number" min="1" value="10" style="display: none;">
+
       <button id='submit'>Convert</button>
     </form>
     

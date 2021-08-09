@@ -282,6 +282,9 @@ class VideoConverter:
                                             os.path.join(path, '..')))
 
 
+        def is_split(self):
+            return self.__splitworkbooks
+        
         def convert(self):
             """Begins conversion of the video
             """
