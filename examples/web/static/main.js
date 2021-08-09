@@ -3,6 +3,7 @@ const submit_button = document.getElementById('submit')
 const video = document.getElementById('video')
 const video_source = document.getElementById('video_source')
 const workbooksplit_check = document.getElementById('enable-workbooksplit')
+const filter_select = document.getElementById("filters")
 
 var currentMedia;
 
@@ -32,6 +33,10 @@ workbooksplit_check.addEventListener("change", function(){
     document.getElementById('workbooksplit').style.display = "none"
   }
 
+})
+
+filters.addEventListener("change", function() {
+  changeFilter();
 })
 
 
@@ -92,7 +97,7 @@ function updateForm() {
 
 function filterDetect() {
   var e = document.getElementById('filters')
-  if(e.options[e.selectedIndex].value == 'FILTER') {
+  if(e.value == 'FILTER') {
     document.getElementById('filter_colour').style.visibility = 'visible';
     document.getElementById('filter_colour').style.display = 'inline';
   } else {
@@ -130,8 +135,9 @@ function update_image(){
   var fileSelector = document.getElementById("fake-file-selector");
 
   fileSelector.innerHTML = document.querySelector('input[type=file]').value.replace(/.*[\/\\]/, '');
-
-  changeFilter();
+  
   filterDetect();
-
+  changeFilter();
+  
+  
 }
