@@ -18,6 +18,7 @@ image2excel is software that converts images and video to Excel spreadsheets.
 
 __name__ = "image2excel.lib"
 
+from argparse import ArgumentError
 from typing import Union
 from PIL import Image
 import cv2
@@ -32,6 +33,8 @@ from enum import Enum
 import zipfile
 import os
 from distutils.dir_util import copy_tree
+import multiprocessing as mp
+from sys import platform as sys_platform
 
 
 #Convert normal coordinates (1,1) into excel coordiantes A1
@@ -42,6 +45,16 @@ def to_excel_coords(x):
         string = chr(65 + remainder) + string
 
     return str(string)
+
+#https://stackoverflow.com/a/312464
+def chunks(lst, n):
+    arr = []
+
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        arr.append(lst[i:i + n])
+    
+    return arr
 
 class Mode(Enum):
     RGB = 1
@@ -211,7 +224,7 @@ class ImageConverter:
 
 class VideoConverter:
 
-        def __init__(self, file_name: str, output_path: str, mode: int=Mode.RGB, scale: float=1, filter_colour: str="#FFFFFF", frame_skip: int=25, force_frame_skip: bool=False, videocut: float=1.0, workbooksplit: int=None, use_zip: bool=True):
+        def __init__(self, file_name: str, output_path: str, mode: int=Mode.RGB, scale: float=1, filter_colour: str="#FFFFFF", frame_skip: int=25, force_frame_skip: bool=False, videocut: float=1.0, workbooksplit: int=None, use_zip: bool=True, use_multithreading: bool=True, threadcount: int=1):
             """The main image class.
 
             Args:
@@ -224,7 +237,9 @@ class VideoConverter:
                 frame_skip_force (bool, optional): Forces frame skip, not recommended.
                 videocut (float, optional): Percentage as float to cut the video by.
                 workbooksplit (int, optional): Split the video into seperate files, every x frames. <= 10 recommended.
-            """
+                use_multithreading (bool, optional): Use multithreading or not.
+                threadcount (int, optional): Defaults to all threads. Related to above.
+                """
 
             self.image_name = file_name
             self.file_name = file_name
@@ -260,7 +275,27 @@ class VideoConverter:
             self.output_path = output_path
 
             self.temp_directory = tempfile.mkdtemp()
+
+            print(mp.cpu_count())
+            print(threadcount)
             
+            #Check multithreading
+            if use_multithreading == False and threadcount == None:
+                self.use_threading = False
+            #Assume threading is enabled.
+            elif threadcount > mp.cpu_count():
+                raise ValueError("Threadcount cannot exceed the threadcount on your system!")
+            else:
+                self.use_threading = True
+                self.threadcount = threadcount
+
+                #Set thread spawn setting
+
+                if sys_platform == "linux" or sys_platform == "linux2":
+                    mp.set_start_method("fork")
+                else:
+                    mp.set_start_method("spawn")
+
             self.progress = 0
             self.status = ""
             self.finished = False
@@ -285,10 +320,50 @@ class VideoConverter:
         def is_split(self):
             return self.__splitworkbooks
         
+        #Convert method which spawns other threads.
         def convert(self):
+            video = cv2.VideoCapture(self.file_name)
+                
+            frame_count = math.floor(self.videocut * video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+            if self.use_threading:
+                print("Using multiple threads!")
+
+                #Figure out "block size" for converting video.
+
+                block_count = math.floor(frame_count / self.threadcount)
+
+                blocks = chunks(list(range(frame_count)), block_count)
+
+                print("sdfsdf")
+                print(blocks)
+                print("sdfsdf")
+
+                #Generate blocks list
+
+                str_blocks = []
+
+                for b in blocks:
+                    str_blocks.append(f"{b[0]}.{b[-1]}")
+
+                #Map workload to multiple processes using pool.
+
+                with mp.Pool(self.threadcount) as p:
+                    p.map(self.convert_thread, str_blocks)
+
+            else:
+                #blocks = list(range(frame_count))
+
+                print("Using single thread!")
+
+                self.convert_thread(f"0.{frame_count}")
+        
+        def convert_thread(self, block):
             """Begins conversion of the video
             """
 
+            block = range(int(block.split(".")[0]), int(block.split(".")[1]))
+            
             start_time = time.time()
 
             video = cv2.VideoCapture(self.file_name)
@@ -324,7 +399,7 @@ class VideoConverter:
             #Current frame's index in frame_worksheets
             frame_list_index = 0
             #Actual location of frame in video.
-            frame_video_index = 0
+            frame_video_index = block[0]
 
             frame_worksheets = []
 
@@ -367,7 +442,7 @@ class VideoConverter:
                     info_worksheet.write('A7', f'Workbook {workbook_count}/{workbook_total}')
                     info_worksheet.write_url('A9', 'https://github.com/sccreeper/image2excel/', string='View the source code on GitHub', cell_format=f_bold_text)
 
-                while frame_video_index < math.floor(frame_count):
+                while frame_video_index < block[-1]:
 
                     frame_worksheets.append(workbook_files[file].add_worksheet(f"Frame {frame_video_index}"))
 

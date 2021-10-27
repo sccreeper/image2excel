@@ -8,6 +8,7 @@ from lib import image2excel
 import _thread as thread
 from random import choice
 import argparse
+import multiprocessing as mp
 
 #Generate a loading bar
 def gen_bar(percent):
@@ -31,6 +32,7 @@ parser.add_argument("--frameskip", type=int, help="The amount of frames to skip 
 parser.add_argument("--forceframeskip", action="store_true", help="Force the frame skip")
 parser.add_argument("--videocut", type=float, help="Cuts the video down by a certain percentage. E.G 0.5 would be half.", default=0.5)
 parser.add_argument("--workbooksplit", type=int, help="Split the video into seperate files, every x frames. <= 10 recommended.", default=None)
+parser.add_argument("--threads", type=int, help="How many threads you want to use for video conversion. 0 will disable multithreading.", default=1)
 
 args = parser.parse_args()
 
@@ -45,7 +47,17 @@ if args.file_path == 'test_image':
 else:
     image_name = args.file_path
 
-#Set the variables fot cmd args
+#Check whether threadcount is valid
+if args.threads > mp.cpu_count():
+    print(f"Maximum number of threads allowed is {mp.cpu_count()}!")
+    exit()
+elif args.threads == 0:
+    use_multithreading = False
+else:
+    use_multithreading = True
+    print(args.threads)
+
+#Set the variables for cmd args
 output_file = args.output_path
 scale = args.scale
 
@@ -62,7 +74,7 @@ if args.type == "image" and not ".gif" in args.file_path:
         converter = image2excel.ImageConverter(image_name, output_file, filter, scale)
 else:
     try:
-        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut, workbooksplit=args.workbooksplit)
+        converter = image2excel.VideoConverter(image_name, output_file, filter, scale, filter_colour, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut, workbooksplit=args.workbooksplit, threadcount=args.threads, use_multithreading=True)
     except NameError:
         converter = image2excel.VideoConverter(image_name, output_file, filter, scale, frame_skip=args.frameskip, force_frame_skip=args.forceframeskip, videocut=args.videocut, workbooksplit=args.workbooksplit)
 
