@@ -1,89 +1,10 @@
 # image2excel
-A program which converts images and video into Excel spreadsheets.
+A program which converts images into Excel spreadsheets written in Go.
 
-Usage examples can be found in `examples`
-
-Videos can take a long time to save.
-
----
-
-### Example conversion
-Original image:
-
-![Original image](assets/test_image_readme.JPG)
----
-Result as viewed in Excel:
-
-![Conversion](assets/test_conversion.png)
-
-Video is the same except each frame is it's own spreadsheet.
-
----
-### Prerequisites
-
-Main libraries can be installed with:
-
-`pip install -r requirements.txt`
-
-Web UI libraries can be installed with:
-
-`pip install -r web_requirements.txt`
-
----
-
-### Command syntax
-
-`image2excel-cmd.py [-h] [--scale SCALE] [--filter FILTER] [--frameskip FRAMESKIP] [--forceframeskip] [--videocut VIDEOCUT] type file_path output_path mode`
-
-Use `image2excel-cmd.py -h` for help. Information about arguments is displayed below.
-
-**Media type:** `video` or `image`. Video is used for animated gifs.
-
-**File path:** The location of the original iamge. `test_image` can be for one of the test images, no test videos (scale of 0.1 is recommended).
-
-**Output path:** The output path of the Excel spreadsheet
-
-**Mode**:
-
- - `GREYSCALE` *(applies a greyscale effect to the image)* 
- - `RGB` *(no filter applied)*
- - `FILTER` *(applies a colour filter to the image)*
-
-#### **Optional arguments**
-
-**Scale:** The scale of the image. For images over 1000px in size, a scale of less than 0.25 is recommended.
-
-**Filter:** The colour of the filter to be applied to the image.
-
-##### Video only
-
-**Frameskip:** How many frames to skip between each spreadsheet. 50 is recommended.
-
-**Force frame skip:** Force the frame skip to be lower than 25. Ideal for gifs.
-
-**Videocut:** How much to shorten the video by (float, percentage 0.5 = 50%)
-
-**Workbooksplit:** Split the video into seperate files, every x frames. <= 10 recommended.
-
----
-
-### Webserver
-
-Run in `eaxmples/web` directory.
-
-`python image2excel-web.py <port>`
-
-**Note:** The port will default to `5000`
+Usage examples can be found in `cmd`.
 
 ---
 
 ### TODO
- - 'Bake' colours (dont' use conditional formatting)
- - Add ability to split video up into seperate Excel files ✅
- - Add example that downloads YouTube videos
- - Add RGB 2D array support ✅
- - Add support for gifs as video ✅
- - Implement video conversion for web server ✅
- - Implement scale for video ✅
- - Frame skip config ✅
- - Cut down video length as option ✅
+ - Add colour support
+ - Add video support
