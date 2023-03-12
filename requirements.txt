@@ -1,4 +1,0 @@
-xlsxwriter #Excel lib
-pillow #Python image lib
-opencv-python #OpenCV python bindings
-numpy #For array conversion

@@ -1,6 +1,4 @@
-web/temp/
-__pycache__
 *.xlsx
 *.mp4
-tests
 *.zip
+build
