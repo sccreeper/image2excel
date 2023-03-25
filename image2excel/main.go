@@ -32,6 +32,33 @@ const (
 	Alpha PixelType = 3
 )
 
+var conditional_format_red excelize.ConditionalFormatOptions = excelize.ConditionalFormatOptions{
+	Type:     "2_color_scale",
+	Criteria: "=",
+	MinType:  "min",
+	MaxType:  "max",
+	MinColor: "#000000",
+	MaxColor: "#FF0000",
+}
+
+var conditional_format_green excelize.ConditionalFormatOptions = excelize.ConditionalFormatOptions{
+	Type:     "2_color_scale",
+	Criteria: "=",
+	MinType:  "min",
+	MaxType:  "max",
+	MinColor: "#000000",
+	MaxColor: "#00FF00",
+}
+
+var conditional_format_blue excelize.ConditionalFormatOptions = excelize.ConditionalFormatOptions{
+	Type:     "2_color_scale",
+	Criteria: "=",
+	MinType:  "min",
+	MaxType:  "max",
+	MinColor: "#000000",
+	MaxColor: "#0000FF",
+}
+
 // Converts image bytes into bytes
 func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_factor float64, width int, height int) (*bytes.Buffer, error) {
 
@@ -104,6 +131,8 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 
 	// Loop through at set pixels
 
+	var write_y int = 0
+
 	for y := 0; y < image_height; y++ {
 		if do_output {
 			var m runtime.MemStats
@@ -112,9 +141,24 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 			fmt.Printf("\rProgress: %d%% Mem: %d...", int((float64(y)/float64(image_height))*100.0), m.Sys)
 		}
 
-		cell, _ := excelize.CoordinatesToCellName(1, y)
+		row_r, _ := excelize.CoordinatesToCellName(1, write_y+1)
+		row_g, _ := excelize.CoordinatesToCellName(1, write_y+2)
+		row_b, _ := excelize.CoordinatesToCellName(1, write_y+3)
 
-		s.SetRow(cell, get_image_row(resized, y, Red))
+		row_end_r, _ := excelize.CoordinatesToCellName(resized.Bounds().Dx()+2, write_y+1)
+		row_end_g, _ := excelize.CoordinatesToCellName(resized.Bounds().Dx()+2, write_y+2)
+		row_end_b, _ := excelize.CoordinatesToCellName(resized.Bounds().Dx()+2, write_y+3)
+
+		s.SetRow(row_r, append(get_image_row(resized, y, Red), 0, 255))
+		f.SetConditionalFormat(main_sheet_name, fmt.Sprintf("%s:%s", row_r, row_end_r), []excelize.ConditionalFormatOptions{conditional_format_red})
+
+		s.SetRow(row_g, append(get_image_row(resized, y, Green), 0, 255))
+		f.SetConditionalFormat(main_sheet_name, fmt.Sprintf("%s:%s", row_g, row_end_g), []excelize.ConditionalFormatOptions{conditional_format_green})
+
+		s.SetRow(row_b, append(get_image_row(resized, y, Blue), 0, 255))
+		f.SetConditionalFormat(main_sheet_name, fmt.Sprintf("%s:%s", row_b, row_end_b), []excelize.ConditionalFormatOptions{conditional_format_blue})
+
+		write_y += 3
 
 	}
 
@@ -130,8 +174,15 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 
 	// Finish up and "save" file
 
+	// Set column widths
+
+	//width_end, err := excelize.ColumnNumberToName(resized.Bounds().Dx())
+	//check_error(err)
+
+	// err = f.SetColWidth(main_sheet_name, "A", "A", 3.00)
+	// check_error(err)
+
 	f.Write(&spreadsheet_bytes)
-	f.Close()
 
 	if do_output {
 		log.Println("Returning...")
@@ -147,9 +198,17 @@ func get_image_row(i image.Image, row int, colour PixelType) []interface{} {
 	img_interface := make([]interface{}, i.Bounds().Dx())
 
 	for x := 0; x < i.Bounds().Dx(); x++ {
-		r, _, _, _ := i.At(x, row).RGBA()
+		r, g, b, _ := i.At(x, row).RGBA()
 
-		img_interface[x] = uint8(r / 255)
+		switch colour {
+		case Red:
+			img_interface[x] = uint8(r / 255)
+		case Green:
+			img_interface[x] = uint8(g / 255)
+		case Blue:
+			img_interface[x] = uint8(b / 255)
+		}
+
 	}
 
 	return img_interface
