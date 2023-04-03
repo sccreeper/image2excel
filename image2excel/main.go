@@ -10,7 +10,9 @@ import (
 	_ "image/png"
 	"log"
 	"path"
+	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/xuri/excelize/v2"
 	"golang.org/x/image/draw"
@@ -59,6 +61,12 @@ var conditional_format_blue excelize.ConditionalFormatOptions = excelize.Conditi
 	MaxColor: "#0000FF",
 }
 
+const (
+	info_sheet_name string = "Info"
+)
+
+var credits_display string = "image2excel GitHub repo"
+
 // Converts image bytes into bytes
 func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_factor float64, width int, height int) (*bytes.Buffer, error) {
 
@@ -68,7 +76,11 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 	var image_height int
 	var image_width int
 
+	var image_bytes []byte
+
 	main_sheet_name = path.Base(file_name)
+
+	image_bytes = image_data.Bytes()
 
 	// Decode image
 	img, _, err := image.Decode(image_data)
@@ -122,6 +134,52 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 	f := excelize.NewFile()
 	check_error(err)
 
+	f.DeleteSheet("Sheet1")
+
+	// Add "info" sheet
+	_, err = f.NewSheet(info_sheet_name)
+	check_error(err)
+
+	// Credits link
+
+	f.SetCellHyperLink(info_sheet_name, "A1", "https://github.com/sccreeper/image2excel", "External", excelize.HyperlinkOpts{
+		Display: &credits_display,
+	})
+	f.SetCellValue(info_sheet_name, "A1", credits_display)
+
+	link_style, err := f.NewStyle(&excelize.Style{
+		Font: &excelize.Font{Color: "#22934B", Underline: "single"},
+	})
+	check_error(err)
+
+	err = f.SetCellStyle(info_sheet_name, "A1", "A1", link_style)
+	check_error(err)
+
+	// Add 'metadata'
+
+	f.SetCellValue(info_sheet_name, "A3", fmt.Sprintf("Original image: %s", main_sheet_name))
+	f.SetCellValue(info_sheet_name, "A2", fmt.Sprintf("Original resolution: %dx%d Resized resolution: %dx%d Spreadsheet resolution: %dx%d", img.Bounds().Dx(), img.Bounds().Dy(), resized.Bounds().Dx(), resized.Bounds().Dy(), resized.Bounds().Dx(), resized.Bounds().Dy()*3))
+
+	if do_output {
+
+		log.Printf("Image basename: %s", strings.TrimSuffix(main_sheet_name, filepath.Ext(main_sheet_name)))
+		log.Printf("Image extension: %s", strings.ToLower(filepath.Ext(main_sheet_name)))
+
+	}
+
+	f.AddPictureFromBytes(
+		info_sheet_name,
+		"A5",
+		strings.TrimSuffix(main_sheet_name, filepath.Ext(main_sheet_name)),
+		strings.ToLower(filepath.Ext(main_sheet_name)),
+		image_bytes,
+		&excelize.GraphicOptions{
+			Positioning: "oneCell",
+		},
+	)
+
+	// Add main image sheet
+
 	index, err := f.NewSheet(main_sheet_name)
 	check_error(err)
 	f.SetActiveSheet(index)
@@ -129,13 +187,19 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 	s, err := f.NewStreamWriter(main_sheet_name)
 	check_error(err)
 
+	//Set column widths
+
+	err = s.SetColWidth(1, resized.Bounds().Dx(), 2.5)
+	check_error(err)
+
 	// Loop through at set pixels
 
 	var write_y int = 0
 
+	var m runtime.MemStats
+
 	for y := 0; y < image_height; y++ {
 		if do_output {
-			var m runtime.MemStats
 			runtime.ReadMemStats(&m)
 
 			fmt.Printf("\rProgress: %d%% Mem: %d...", int((float64(y)/float64(image_height))*100.0), m.Sys)
@@ -174,15 +238,8 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 
 	// Finish up and "save" file
 
-	// Set column widths
-
-	//width_end, err := excelize.ColumnNumberToName(resized.Bounds().Dx())
-	//check_error(err)
-
-	// err = f.SetColWidth(main_sheet_name, "A", "A", 3.00)
-	// check_error(err)
-
 	f.Write(&spreadsheet_bytes)
+	f.Close()
 
 	if do_output {
 		log.Println("Returning...")
