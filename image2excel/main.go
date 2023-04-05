@@ -129,6 +129,12 @@ func Convert(image_data *bytes.Buffer, file_name string, do_output bool, scale_f
 		}
 	}
 
+	if do_output {
+
+		log.Printf("Image res: %dx%d", resized.Bounds().Dx(), resized.Bounds().Dy())
+
+	}
+
 	// Create Excel file
 
 	f := excelize.NewFile()

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<head>
+<title>image2excel</title>
+<script src="/public/main.js" defer></script>
+</head>
+
+<h1>image2excel web</h1>
+
+<input type="file" id="file_input"/>
+
+<br>
+
+<img src="" id="file_image"/>
+
+<br>
+
+<input type="range" min="0" max="1" step="0.01" id="image_scale" value="0.5" accept="image/png,image/jpeg,image/gif,.png,.gif,.jpg"/>
+<label for="image_scale" id="image_scale_label">Scale: 0.5</label>
+
+<br>
+
+<button id="convert_button">Convert</button>
+
+<br>
+
+<p id="status"></p>
