@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 
 <head>
-<title>image2excel</title>
-<script src="/public/main.js" defer></script>
+    <title>image2excel</title>
+    <script src="/public/main.js" defer></script>
+    <link rel="stylesheet" href="/public/style.css" />
 </head>
 
-<h1>image2excel web</h1>
+<div id="body-div">
+    <h1>image2excel web</h1>
 
-<input type="file" id="file_input"/>
+    <p>Upload a image to be converted. Supported types are .gif, .png, .jpg</p>
 
-<br>
+    <input type="file" id="file_input" />
 
-<img src="" id="file_image"/>
+    <br>
 
-<br>
+    <img src="" id="file_image" />
 
-<input type="range" min="0" max="1" step="0.01" id="image_scale" value="0.5" accept="image/png,image/jpeg,image/gif,.png,.gif,.jpg"/>
-<label for="image_scale" id="image_scale_label">Scale: 0.5</label>
+    <br>
 
-<br>
+    <input type="range" min="0" max="1" step="0.01" id="image_scale" value="0.5"
+        accept="image/png,image/jpeg,image/gif,.png,.gif,.jpg" />
+    <label for="image_scale" id="image_scale_label">Scale: 0.5</label>
 
-<button id="convert_button">Convert</button>
+    <br>
 
-<br>
+    <button id="convert_button">Convert</button>
 
-<p id="status"></p>
+    <br>
+
+    <p id="status"></p>
+</div>
