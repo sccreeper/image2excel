@@ -176,11 +176,12 @@ func Convert(imageData *bytes.Buffer, file_name string, doOutput bool, scaleFact
 	f.AddPictureFromBytes(
 		infoSheetName,
 		"A5",
-		strings.TrimSuffix(mainSheetName, filepath.Ext(mainSheetName)),
-		strings.ToLower(filepath.Ext(mainSheetName)),
-		imageBytes,
-		&excelize.GraphicOptions{
-			Positioning: "oneCell",
+		&excelize.Picture{
+			Extension: strings.ToLower(filepath.Ext(mainSheetName)),
+			File:      imageBytes,
+			Format: &excelize.GraphicOptions{
+				Positioning: "oneCell",
+			},
 		},
 	)
 
