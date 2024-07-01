@@ -10,9 +10,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var image_width int = 0
-var image_height int = 0
-var scale_factor float64
+var imageWidth int = 0
+var imageHeight int = 0
+var scaleFactor float64
 
 func main() {
 
@@ -25,14 +25,14 @@ func main() {
 			&cli.IntFlag{
 				Name:        "width",
 				Usage:       "Width of the image to be scaled down to (cannot be used with scale factor)",
-				Destination: &image_width,
+				Destination: &imageWidth,
 				Required:    false,
 				Value:       0,
 			},
 			&cli.IntFlag{
 				Name:        "height",
 				Usage:       "Height of the image to be scaled down to (cannot be used with scale factor)",
-				Destination: &image_height,
+				Destination: &imageHeight,
 				Required:    false,
 				Value:       0,
 			},
@@ -40,7 +40,7 @@ func main() {
 				Name:        "scalefactor",
 				Aliases:     []string{"s"},
 				Usage:       "Scale factor of the image",
-				Destination: &scale_factor,
+				Destination: &scaleFactor,
 				Required:    true,
 				Value:       1.0,
 			},
@@ -55,7 +55,7 @@ func main() {
 
 func _convert(ctx *cli.Context) error {
 
-	var file_data bytes.Buffer
+	var fileData bytes.Buffer
 
 	if ctx.Args().First() == "" {
 		log.Println("No file!")
@@ -70,13 +70,13 @@ func _convert(ctx *cli.Context) error {
 			panic(err)
 		}
 
-		file_data.Write(b)
+		fileData.Write(b)
 
 	}
 
 	log.Println("Converting file...")
 
-	conv, err := image2excel.Convert(&file_data, ctx.Args().First(), true, scale_factor, image_height, image_width)
+	conv, err := image2excel.Convert(&fileData, ctx.Args().First(), true, scaleFactor, imageHeight, imageWidth)
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())

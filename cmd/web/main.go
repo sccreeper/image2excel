@@ -14,10 +14,10 @@ import (
 )
 
 //go:embed index.html
-var main_page string
+var mainPage string
 
 const (
-	max_file_size = 8000000 //8 megabytes
+	maxFileSize = 8000000 //8 megabytes
 )
 
 func main() {
@@ -27,16 +27,16 @@ func main() {
 	r.Static("/public", "public")
 
 	r.GET("/", func(ctx *gin.Context) {
-		ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(main_page))
+		ctx.Data(http.StatusOK, "text/html; charset=utf-8", []byte(mainPage))
 	})
 
 	r.POST("/convert", func(ctx *gin.Context) {
 
-		var file_bytes []byte
-		var file_buffer bytes.Buffer
+		var fileBytes []byte
+		var fileBuffer bytes.Buffer
 
-		scale_form, _ := ctx.GetPostForm("scale")
-		scale, err := strconv.ParseFloat(scale_form, 64)
+		scaleForm, _ := ctx.GetPostForm("scale")
+		scale, err := strconv.ParseFloat(scaleForm, 64)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
@@ -48,23 +48,23 @@ func main() {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		if header.Size >= max_file_size {
+		if header.Size >= maxFileSize {
 			ctx.AbortWithStatus(http.StatusUnprocessableEntity)
 		}
 
-		file_bytes, err = ioutil.ReadAll(file)
+		fileBytes, err = ioutil.ReadAll(file)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		file_buffer.Write(file_bytes)
+		fileBuffer.Write(fileBytes)
 
-		result_buffer, err := i2e.Convert(&file_buffer, header.Filename, true, scale, 0, 0)
+		resultBuffer, err := i2e.Convert(&fileBuffer, header.Filename, true, scale, 0, 0)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
 
-		ctx.Data(http.StatusOK, "application/octet-stream", result_buffer.Bytes())
+		ctx.Data(http.StatusOK, "application/octet-stream", resultBuffer.Bytes())
 
 	})
 
