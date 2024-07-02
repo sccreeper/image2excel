@@ -76,7 +76,7 @@ func _convert(ctx *cli.Context) error {
 
 	log.Println("Converting file...")
 
-	conv, err := image2excel.Convert(&fileData, ctx.Args().First(), true, scaleFactor, imageHeight, imageWidth)
+	conv, err := image2excel.ConvertImage(&fileData, ctx.Args().First(), true, scaleFactor, imageHeight, imageWidth)
 
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())

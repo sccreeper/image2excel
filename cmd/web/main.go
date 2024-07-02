@@ -59,7 +59,7 @@ func main() {
 
 		fileBuffer.Write(fileBytes)
 
-		resultBuffer, err := i2e.Convert(&fileBuffer, header.Filename, true, scale, 0, 0)
+		resultBuffer, err := i2e.ConvertImage(&fileBuffer, header.Filename, true, scale, 0, 0)
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
