@@ -59,7 +59,11 @@ func main() {
 
 		fileBuffer.Write(fileBytes)
 
-		resultBuffer, err := i2e.ConvertImage(&fileBuffer, header.Filename, true, scale, 0, 0)
+		resultBuffer, err := i2e.ConvertImage(&fileBuffer, &i2e.ConvertImageOptions{
+			ScaleFactor: scale,
+			DoLogging:   true,
+			SheetName:   "ConvertedImage",
+		})
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusInternalServerError)
 		}
