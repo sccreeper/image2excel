@@ -8,6 +8,7 @@ import (
 	i2e "sccreeper/image2excel/image2excel"
 
 	"github.com/urfave/cli/v2"
+	"github.com/xuri/excelize/v2"
 )
 
 var scale float64
@@ -19,19 +20,21 @@ var imageHeight int = 0
 var perFile int
 var interval int
 
+var experimental bool
+
 func main() {
 
 	app := &cli.App{
 		Name:        "image2excel",
 		Usage:       "Images and videos to Excel spreadsheets",
 		Description: "CLI for image2excel. Converts images and video files to Excel spreadsheets. Can accept png, jpg, and gif images. Can accept video formats supported by OpenCV.",
-		Action:      _convertImage,
+		Action:      convertImage,
 		Commands: []*cli.Command{
 			{
 				Name:    "image",
 				Aliases: []string{"i"},
 				Usage:   "./i2e image <path>",
-				Action:  _convertImage,
+				Action:  convertImage,
 				Flags: []cli.Flag{
 
 					&cli.IntFlag{
@@ -62,7 +65,7 @@ func main() {
 				Name:    "video",
 				Aliases: []string{"v"},
 				Usage:   "./i2e video <path>",
-				Action:  _convertVideo,
+				Action:  convertVideo,
 				Flags: []cli.Flag{
 					&cli.Float64Flag{
 						Name:        "scale",
@@ -93,7 +96,19 @@ func main() {
 						Destination: &outputPath,
 						Value:       "out",
 					},
+					&cli.BoolFlag{
+						Name:        "experimental",
+						Aliases:     []string{"e"},
+						Usage:       "Use the experimental ConvertVideoCustom method. Outputted files may not work in all programs.",
+						Destination: &experimental,
+						Value:       false,
+					},
 				},
+			},
+			{
+				Name:        "validate",
+				Description: "Used for debugging. Opens the files using Excelize.",
+				Action:      validate,
 			},
 		},
 	}
@@ -104,7 +119,7 @@ func main() {
 
 }
 
-func _convertImage(ctx *cli.Context) error {
+func convertImage(ctx *cli.Context) error {
 
 	var fileData bytes.Buffer
 
@@ -150,14 +165,48 @@ func _convertImage(ctx *cli.Context) error {
 
 }
 
-func _convertVideo(ctx *cli.Context) error {
+func convertVideo(ctx *cli.Context) error {
 
-	i2e.ConvertVideo(ctx.Args().First(), outputPath, &i2e.ConvertVideoOptions{
-		Interval:  interval,
-		PerFile:   perFile,
-		Scale:     scale,
-		DoLogging: true,
-	})
+	if experimental {
+
+		i2e.ConvertVideoCustom(ctx.Args().First(), outputPath, &i2e.ConvertVideoOptions{
+			Interval:  interval,
+			PerFile:   perFile,
+			Scale:     scale,
+			DoLogging: true,
+		})
+
+	} else {
+
+		i2e.ConvertVideo(ctx.Args().First(), outputPath, &i2e.ConvertVideoOptions{
+			Interval:  interval,
+			PerFile:   perFile,
+			Scale:     scale,
+			DoLogging: true,
+		})
+
+	}
+
+	return nil
+
+}
+
+func validate(ctx *cli.Context) error {
+
+	fileName := ctx.Args().First()
+
+	workbook, err := excelize.OpenFile(fileName)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range workbook.GetSheetMap() {
+		fmt.Println(v)
+	}
+
+	workbook.Close()
+
+	fmt.Println("Opened successfully.")
 
 	return nil
 
